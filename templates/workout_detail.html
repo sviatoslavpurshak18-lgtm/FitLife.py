@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Програма тренувань - FitLife Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-2" id="workoutTitle">{{ workout.title|default:"Програма ще не згенерована" }}</h2>
+        {% if workout %}
+            <p class="text-muted mb-0">
+                Стать: <strong>{{ fitness_user.get_gender_display }}</strong> |
+                Акцент: <strong>{{ fitness_user.get_focus_muscle_group_display }}</strong> |
+                Тривалість до: <strong id="workoutLimit">{{ workout.duration_min }} хв</strong>
+            </p>
+        {% endif %}
+    </div>
+    <form method="post" action="{% url 'plan_generate' %}" id="regenForm">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary btn-sm" id="regenBtn"><i class="bi bi-arrow-repeat me-1"></i> <span>Перегенерувати</span></button>
+    </form>
+</div>
+
+{% if workout and workout.program_text %}
+    {% if days %}
+        {% include "partials/workout_days.html" %}
+    {% else %}
+        <div class="card p-4">
+            <pre class="workout-program mb-0">{{ workout.program_text }}</pre>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-warning">
+        У вас ще немає згенерованого плану тренувань. Натисніть «Перегенерувати», щоб створити його.
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const form = document.getElementById('regenForm');
+    if (!form) return;
+    const btn = document.getElementById('regenBtn');
+    const label = btn.querySelector('span');
+    const icon = btn.querySelector('i');
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const grid = document.getElementById('logGrid');
+        btn.disabled = true;
+        label.textContent = 'Генеруємо…';
+        icon.classList.add('spin');
+        if (grid) grid.classList.add('is-loading');
+        try {
+            const resp = await fetch(form.action, {
+                method: 'POST',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: new FormData(form),
+                credentials: 'same-origin',
+            });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const data = await resp.json();
+            // коротка пауза, щоб зміну було помітно
+            await new Promise(r => setTimeout(r, 350));
+            const holder = document.getElementById('logGrid') || document.querySelector('.alert-warning');
+            const tmp = document.createElement('div');
+            tmp.innerHTML = data.html;
+            const fresh = tmp.firstElementChild;
+            fresh.classList.add('is-new');
+            holder.replaceWith(fresh);
+            document.getElementById('workoutTitle').textContent = data.title;
+            const lim = document.getElementById('workoutLimit');
+            if (lim) lim.textContent = data.duration_min + ' хв';
+        } catch (err) {
+            form.submit();   // запасний варіант: звичайне перезавантаження
+            return;
+        }
+        btn.disabled = false;
+        label.textContent = 'Перегенерувати';
+        icon.classList.remove('spin');
+    });
+})();
+</script>
+{% endblock %}

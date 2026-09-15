@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Головна - FitLife Pro{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-4 py-lg-5">
+    <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
+        <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill fw-semibold text-wrap">
+            <i class="bi bi-stars me-1"></i> Розумний підбір за формулою Міффліна-Сан Жеора
+        </span>
+        <h1 class="hero-title text-dark mb-3 fw-bold display-6 display-lg-5">
+            Твій персональний план тренувань і харчування
+        </h1>
+        <p class="lead text-secondary mb-4 fs-6 fs-lg-5">
+            Вкажи свої параметри — отримай готову програму для залу та точно розраховане КБЖВ за пару кліків. Без нудної теорії та зайвих слів.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 mb-4 mb-lg-0">
+            {% if current_fitness_user %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-4"><i class="bi bi-speedometer2 me-1"></i> Перейти в кабінет</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4"><i class="bi bi-rocket-takeoff me-1"></i> Створити свій план</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">Увійти</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="position-relative">
+            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80" 
+                 alt="Тренування у фітнес-залі" 
+                 class="img-fluid rounded-4 shadow-lg w-100 object-fit-cover" 
+                 style="max-height: 420px;">
+        </div>
+    </div>
+</div>
+
+<!-- 6 карток: на телефонах по 1 в рядок, на планшетах по 2, на ПК по 3 -->
+<div class="row g-4 py-4">
+    <!-- Картка 1 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-primary mb-2"><i class="bi bi-bullseye"></i></div>
+            <h5 class="fw-bold">Акцентні програми</h5>
+            <p class="text-muted mb-0">Гнучка програма від 1 до 6 днів із фокусом на обрану групу м'язів та суворим, грамотним порядком виконання вправ.</p>
+        </div>
+    </div>
+    <!-- Картка 2 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-success mb-2"><i class="bi bi-pie-chart-fill"></i></div>
+            <h5 class="fw-bold">Індивідуальне КБЖВ</h5>
+            <p class="text-muted mb-0">Автоматичний розрахунок добової норми калорій за формулою Міффліна-Сан Жеора та точна розбивка на білки, жири й вуглеводи під твою мету.</p>
+        </div>
+    </div>
+    <!-- Картка 3 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-info mb-2"><i class="bi bi-stopwatch-fill"></i></div>
+            <h5 class="fw-bold">Контроль тривалості сесії</h5>
+            <p class="text-muted mb-0">Алгоритм самостійно розраховує відпочинок, добирає підходи та вправи, щоб тренування чітко вкладалося у твій ліміт часу.</p>
+        </div>
+    </div>
+    <!-- Картка 4 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-warning mb-2"><i class="bi bi-chat-dots-fill"></i></div>
+            <h5 class="fw-bold">AI-Тренер 24/7</h5>
+            <p class="text-muted mb-0">Персональний штучний інтелект у чаті допоможе розібратися з технікою вправ та відповість на будь-які фітнес-питання.</p>
+        </div>
+    </div>
+    <!-- Картка 5 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-danger mb-2"><i class="bi bi-shield-check"></i></div>
+            <h5 class="fw-bold">Облік обмежень та травм</h5>
+            <p class="text-muted mb-0">Розумний алгоритм автоматично виключає травмонебезпечні навантаження на основі твоїх індивідуальних медичних даних.</p>
+        </div>
+    </div>
+    <!-- Картка 6 -->
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="fs-1 text-primary mb-2"><i class="bi bi-graph-up-arrow"></i></div>
+            <h5 class="fw-bold">Історія прогресу</h5>
+            <p class="text-muted mb-0">Зберігай і відстежуй зміни своєї ваги, антропометричних даних та попередніх програм тренувань у зручному журналі.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

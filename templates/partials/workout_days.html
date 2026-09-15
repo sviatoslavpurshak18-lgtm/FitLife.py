@@ -1,0 +1,31 @@
+<div class="log-grid" id="logGrid">
+    {% for day in days %}
+        <section class="log-day">
+            <div class="log-day-head">
+                <div class="log-day-num">{{ day.num }}<small>тренування</small></div>
+                <div class="log-day-time">~{{ day.minutes }} хв</div>
+            </div>
+            <ul class="log-list">
+                <li class="log-ex log-ex-warmup" style="--i: 0">
+                    <div class="log-ex-main"><span class="log-name">Розминка</span></div>
+                    <div class="log-ex-meta"><i class="bi bi-stopwatch"></i> <b>{{ day.warmup }} хв</b></div>
+                </li>
+                {% for ex in day.exercises %}
+                    <li class="log-ex" style="--i: {{ forloop.counter }}">
+                        <div class="log-ex-main">
+                            <span class="log-name">{{ ex.name }}</span>
+                            <span class="log-scheme">
+                                <span class="log-sets">{{ ex.sets }} {{ ex.sets_word }}</span>
+                                <span class="log-reps">{{ ex.reps }}</span>
+                            </span>
+                            <a class="log-video" href="{{ ex.video_url }}" target="_blank" rel="noopener noreferrer" title="Подивитися техніку виконання" aria-label="Відео: {{ ex.name }}"><i class="bi bi-play-fill"></i></a>
+                        </div>
+                        {% if ex.time %}
+                            <div class="log-ex-meta"><i class="bi bi-stopwatch"></i> <b>{{ ex.time }}</b> <span>· відпочинок {{ ex.rest }}</span></div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endfor %}
+</div>
