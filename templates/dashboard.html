@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">Панель</h2>
+        <span class="text-muted">Користувач: <strong>{{ fitness_user.username }}</strong> ({{ fitness_user.get_gender_display }}, {{ fitness_user.fitness_goal }})</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'profile_edit' %}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-1"></i> Редагувати анкету</a>
+        <a href="{% url 'ai_assistant' %}" class="btn btn-primary fw-semibold"><i class="bi bi-chat-dots me-1"></i> Запитати AI</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Card 1: users table data -->
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-start border-primary border-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Профіль</h5>
+            <ul class="list-unstyled mb-0">
+                <li class="mb-2"><strong>ID:</strong> {{ fitness_user.id }}</li>
+                <li class="mb-2"><strong>Username:</strong> {{ fitness_user.username }}</li>
+                <li class="mb-2"><strong>Email:</strong> {{ fitness_user.email }}</li>
+                <li class="mb-2"><strong>Рік народження:</strong> {{ fitness_user.date_of_birth }} ({{ fitness_user.age }} років)</li>
+                <li class="mb-2"><strong>Вага:</strong> {{ fitness_user.weight }} кг</li>
+                <li class="mb-2"><strong>Зріст:</strong> {{ fitness_user.height }} см</li>
+                <li class="mb-2"><strong>ІМТ (BMI):</strong> <span class="badge bg-info text-dark">{{ fitness_user.bmi }}</span></li>
+                <li class="mb-2"><strong>Стать:</strong> {{ fitness_user.get_gender_display }}</li>
+                <li class="mb-2"><strong>Акцент:</strong> <span class="badge bg-dark">{{ fitness_user.get_focus_muscle_group_display }}</span></li>
+                <li class="mb-2"><strong>Час сесії:</strong> {{ fitness_user.session_hours }} год</li>
+                <li><strong>Ціль:</strong> <span class="badge bg-primary">{{ fitness_user.fitness_goal }}</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Card 2: meal_plans table data -->
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-start border-success border-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-egg-fried text-primary me-2"></i>Раціон</h5>
+            {% if meal_plan %}
+                <div class="mb-3">
+                    <span class="text-muted small">Добова норма:</span>
+                    <div class="stat-big">{{ meal_plan.daily_calorie }} <span class="fs-6 fw-semibold text-muted">ккал</span></div>
+                </div>
+                <div>
+                    <div class="macro-row">
+                        <span>Білки:</span><strong>{{ meal_plan.proteins }} г</strong>
+                    </div>
+                    <div class="macro-row">
+                        <span>Жири:</span><strong>{{ meal_plan.fats }} г</strong>
+                    </div>
+                    <div class="macro-row">
+                        <span>Вуглеводи:</span><strong>{{ meal_plan.carbs }} г</strong>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">План ще не згенеровано. Відкрийте <a href="{% url 'workout_detail' %}">програму</a> і натисніть «Перегенерувати».</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card 3: workouts table data -->
+    <div class="col-md-4">
+        <div class="card h-100 p-4 shadow-sm border-start border-warning border-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-primary me-2"></i>Тренування</h5>
+            {% if workout %}
+                <h6 class="fw-bold text-dark">{{ workout.title }}</h6>
+                <div class="mb-2">
+                    <span class="badge bg-warning text-dark">Складність: {{ workout.difficulty }}</span>
+                    <span class="badge bg-secondary ms-1">{{ workout.duration_min }} хв</span>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'workout_detail' %}" class="btn btn-sm btn-outline-primary d-block">
+                        <i class="bi bi-list-check me-1"></i> Відкрити програму тренувань
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-muted">Тренування ще не призначено.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

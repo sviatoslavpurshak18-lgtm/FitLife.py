@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}План харчування - FitLife Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-egg-fried text-success me-2"></i>{{ plan.title }}</h2>
+        <p class="text-muted mb-0">
+            Добова енергетична цінність: <strong class="text-success">{{ plan.daily_calories }} ккал</strong> | 
+            Норма води: <strong class="text-primary">{{ plan.water_liters }} л</strong>
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> До кабінету</a>
+    </div>
+</div>
+
+{% if plan %}
+    <!-- Summary Macro Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 border-danger text-center">
+                <span class="text-muted small fw-semibold">БІЛКИ (ПРОТЕЇН)</span>
+                <h3 class="fw-bold text-danger mb-0 mt-1">{{ plan.proteins_g }} г</h3>
+                <small class="text-muted">4 ккал / г</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-warning text-center">
+                <span class="text-muted small fw-semibold">ЖИРИ (ЛІПІДИ)</span>
+                <h3 class="fw-bold text-warning mb-0 mt-1">{{ plan.fats_g }} г</h3>
+                <small class="text-muted">9 ккал / г</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-primary text-center">
+                <span class="text-muted small fw-semibold">ВУГЛЕВОДИ</span>
+                <h3 class="fw-bold text-primary mb-0 mt-1">{{ plan.carbs_g }} г</h3>
+                <small class="text-muted">4 ккал / г</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-info text-center">
+                <span class="text-muted small fw-semibold">ВОДА</span>
+                <h3 class="fw-bold text-info mb-0 mt-1">{{ plan.water_liters }} л</h3>
+                <small class="text-muted">35 мл / кг ваги</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meals Breakdown -->
+    <h4 class="fw-bold mb-3">Розподіл за прийомами їжі</h4>
+    <div class="row g-3">
+        {% for meal in plan.meals.all %}
+            <div class="col-lg-6">
+                <div class="card h-100 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-dark">{{ meal.title }}</h5>
+                        <span class="badge bg-success fs-6">{{ meal.target_calories }} ккал</span>
+                    </div>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-danger-subtle text-danger">Білки: {{ meal.target_proteins }}г</span>
+                        <span class="badge bg-warning-subtle text-warning">Жири: {{ meal.target_fats }}г</span>
+                        <span class="badge bg-primary-subtle text-primary">Вуглеводи: {{ meal.target_carbs }}г</span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded">
+                        <div class="small fw-bold text-muted mb-1"><i class="bi bi-basket me-1"></i>Рекомендований раціон:</div>
+                        <p class="mb-0 text-secondary">{{ meal.recommended_food }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-warning">
+        У вас ще немає згенерованого плану харчування.
+    </div>
+{% endif %}
+{% endblock %}

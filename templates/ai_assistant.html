@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}AI-тренер - FitLife{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">AI-тренер</h2>
+        <span class="text-muted">Питайте про вправи, харчування й відновлення. AI знає ваш профіль, раціон і програму.</span>
+    </div>
+    <form method="post" action="{% url 'ai_clear' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash me-1"></i> Очистити чат</button>
+    </form>
+</div>
+
+{% if not ai_enabled %}
+    <div class="alert alert-warning">
+        AI не налаштований: не задано змінну середовища <code>OPENROUTER_API_KEY</code>.
+        Задайте її й перезапустіть сервер.
+    </div>
+{% endif %}
+
+<div class="card chat-card shadow-sm">
+    <div class="chat-box" id="chatBox">
+        {% for m in history %}
+            <div class="chat-msg {{ m.role }}">{{ m.content }}</div>
+        {% empty %}
+            <div class="chat-empty" id="chatEmpty">
+                <i class="bi bi-chat-dots fs-1 text-primary"></i>
+                <p class="mt-2 mb-0">Поставте питання тренеру або оберіть приклад:</p>
+                {% if ai_enabled %}
+                    <div class="chat-chips">
+                        <button type="button" class="chat-chip">Як правильно робити жим лежачи?</button>
+                        <button type="button" class="chat-chip">Що з'їсти після тренування?</button>
+                        <button type="button" class="chat-chip">Як відновитись між тренуваннями?</button>
+                        <button type="button" class="chat-chip">Чи варто замінити якусь вправу в моїй програмі?</button>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="post" action="{% url 'ai_ask' %}" id="chatForm" class="chat-input">
+        {% csrf_token %}
+        <div class="d-flex gap-2 align-items-end">
+            <textarea name="question" id="chatInput" class="form-control" rows="2" maxlength="{{ max_len }}"
+                      placeholder="Ваше питання… (Enter — надіслати, Shift+Enter — новий рядок)"
+                      {% if not ai_enabled %}disabled{% endif %}></textarea>
+            <button type="submit" class="btn btn-primary fw-semibold" id="chatSend" {% if not ai_enabled %}disabled{% endif %}>
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const form = document.getElementById('chatForm');
+    const box = document.getElementById('chatBox');
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('chatSend');
+    const empty = document.getElementById('chatEmpty');
+
+    function addMsg(role, text) {
+        if (empty && empty.parentNode) empty.remove();
+        const el = document.createElement('div');
+        el.className = 'chat-msg ' + role;
+        el.textContent = text;          // textContent, а не innerHTML — захист від XSS
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+        return el;
+    }
+
+    function setBusy(busy) {
+        input.disabled = busy;
+        send.disabled = busy;
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const question = input.value.trim();
+        if (!question || input.disabled) return;
+
+        addMsg('user', question);
+        input.value = '';
+        const typing = addMsg('assistant typing', 'AI думає…');
+
+        const fd = new FormData(form);   // містить csrf-токен
+        fd.set('question', question);    // textarea вимкнена нижче, тому ставимо вручну
+        setBusy(true);
+
+        let ok = false;
+        try {
+            const resp = await fetch(form.action, {
+                method: 'POST',
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: fd,
+                credentials: 'same-origin',
+            });
+            let data = {};
+            try { data = await resp.json(); } catch (_) {}
+            typing.remove();
+            if (resp.ok && data.answer) {
+                addMsg('assistant', data.answer);
+                ok = true;
+            } else {
+                addMsg('assistant error', data.error || 'Щось пішло не так. Спробуйте ще раз.');
+            }
+        } catch (err) {
+            typing.remove();
+            addMsg('assistant error', 'Немає зв\u2019язку із сервером.');
+        }
+
+        setBusy(false);
+        if (!ok) input.value = question;   // повертаємо текст, щоб не набирати знову
+        input.focus();
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+            e.preventDefault();
+            form.requestSubmit();
+        }
+    });
+
+    document.querySelectorAll('.chat-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            input.value = chip.textContent;
+            form.requestSubmit();
+        });
+    });
+
+    box.scrollTop = box.scrollHeight;
+})();
+</script>
+{% endblock %}

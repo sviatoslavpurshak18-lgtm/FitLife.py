@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Щоденник прогресу - FitLife Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Щоденник прогресу</h2>
+        <p class="text-muted mb-0">Фіксуйте щотижневі зміни ваги та об'ємів для відстеження досягнення цілі</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Form to add record -->
+    <div class="col-lg-4">
+        <div class="card p-4 shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle text-primary me-2"></i>Новий вимір</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Дата виміру</label>
+                    {{ form.record_date }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Вага (кг)</label>
+                    {{ form.weight }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Обхват талії (см)</label>
+                    {{ form.waist_circumference }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Обхват грудей (см)</label>
+                    {{ form.chest_circumference }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Примітки / самопочуття</label>
+                    {{ form.notes }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">Додати запис</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="col-lg-8">
+        <div class="card p-4 shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Історія замірів</h5>
+            {% if logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Дата</th>
+                                <th>Вага</th>
+                                <th>Талія</th>
+                                <th>Груди</th>
+                                <th>Примітки</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                                <tr>
+                                    <td><span class="badge bg-light text-dark border">{{ log.record_date }}</span></td>
+                                    <td><strong class="text-primary">{{ log.weight }} кг</strong></td>
+                                    <td>{{ log.waist_circumference|default:"-" }} см</td>
+                                    <td>{{ log.chest_circumference|default:"-" }} см</td>
+                                    <td class="small text-muted">{{ log.notes|default:"-" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-card-checklist fs-1 mb-2 d-block"></i>
+                    <p>Записів поки що немає. Зробіть свій перший вимір сьогодні!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
