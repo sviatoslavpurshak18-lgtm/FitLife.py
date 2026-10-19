@@ -1,0 +1,26 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('accounts', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='fitnessuser',
+            name='focus_muscle_group',
+            field=models.CharField(choices=[('груди', 'Груди'), ('спина', 'Спина'), ('ноги', 'Ноги'), ('руки', 'Руки (біцепс, тріцепс, плечі)')], default='груди', max_length=20, verbose_name="Пріоритетна група м'язів"),
+        ),
+        migrations.AddField(
+            model_name='fitnessuser',
+            name='gender',
+            field=models.CharField(choices=[('чоловік', 'Чоловік'), ('жінка', 'Жінка')], default='чоловік', max_length=20, verbose_name='Стать'),
+        ),
+        migrations.AddField(
+            model_name='fitnessuser',
+            name='session_hours',
+            field=models.FloatField(default=2.0, verbose_name='Тривалість тренування (год)'),
+        ),
+    ]
