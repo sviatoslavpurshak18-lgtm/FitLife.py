@@ -1,6 +1,58 @@
+import datetime
 import re
 from django import forms
 from .models import FitnessUser
+
+# Обмеження для анкетних даних
+MIN_AGE = 16          # у зал — з 16 років (у 2026 році це рік народження не пізніше 2010)
+MAX_AGE = 100
+MIN_WEIGHT = 30       # кг
+MIN_HEIGHT = 100      # см
+
+
+class BodyDataValidationMixin:
+    """Перевірка року народження, ваги й зросту (спільна для реєстрації та редагування профілю)."""
+
+    @staticmethod
+    def _birth_year_limits():
+        year = datetime.date.today().year
+        return year - MAX_AGE, year - MIN_AGE
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        min_year, max_year = self._birth_year_limits()
+        limits = {
+            'date_of_birth': {'min': min_year, 'max': max_year, 'placeholder': f'Не пізніше {max_year}'},
+            'weight': {'min': MIN_WEIGHT, 'placeholder': f'Від {MIN_WEIGHT} кг'},
+            'height': {'min': MIN_HEIGHT, 'placeholder': f'Від {MIN_HEIGHT} см'},
+        }
+        for name, attrs in limits.items():
+            if name in self.fields:
+                self.fields[name].widget.attrs.update(attrs)
+
+    def clean_date_of_birth(self):
+        year = self.cleaned_data.get('date_of_birth')
+        min_year, max_year = self._birth_year_limits()
+        if year is not None:
+            if year > max_year:
+                raise forms.ValidationError(
+                    f'Користуватись сервісом можна з {MIN_AGE} років: рік народження не пізніше {max_year}.'
+                )
+            if year < min_year:
+                raise forms.ValidationError(f'Рік народження не може бути раніше {min_year}.')
+        return year
+
+    def clean_weight(self):
+        weight = self.cleaned_data.get('weight')
+        if weight is not None and weight < MIN_WEIGHT:
+            raise forms.ValidationError(f'Вага має бути не менше {MIN_WEIGHT} кг.')
+        return weight
+
+    def clean_height(self):
+        height = self.cleaned_data.get('height')
+        if height is not None and height < MIN_HEIGHT:
+            raise forms.ValidationError(f'Зріст має бути не менше {MIN_HEIGHT} см.')
+        return height
 
 
 COMMON_WIDGETS = {
@@ -45,7 +97,7 @@ COMMON_WIDGETS = {
 }
 
 
-class FitnessUserForm(forms.ModelForm):
+class FitnessUserForm(BodyDataValidationMixin, forms.ModelForm):
     class Meta:
         model = FitnessUser
         fields = [
@@ -64,7 +116,7 @@ class FitnessUserForm(forms.ModelForm):
         widgets = COMMON_WIDGETS
 
 
-class RegisterForm(forms.ModelForm):
+class RegisterForm(BodyDataValidationMixin, forms.ModelForm):
     field_order = [
         'username',
         'email',
